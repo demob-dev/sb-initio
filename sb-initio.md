@@ -1,9 +1,67 @@
 ---
-name: Library/demob-dev/sb-initio
+name: Library/sb-initio/sb-initio
 tags: meta/library
 ---
 
-This is `demob-dev/sb-initio` library.
+This is `sb-initio/sb-initio` library.
+
+## Core
+
+```space-lua
+-- priority: 10
+
+initioDay = initioDay or {}
+initioWork = initioWork or {}
+
+function initioDay.openOrCreate(dateStr)
+  local pageName = "Days/" .. dateStr
+  if space.pageExists(pageName) then
+    editor.navigate(pageName)
+    return
+  end
+  local templatePage = "Library/sb-initio/Day"
+  template.createPageFromTemplate(templatePage, pageName, true)
+end
+
+function initioDay.entries()
+  return query[[
+    from j = index.pages("day")
+    order by j.date desc
+  ]]
+end
+
+function initioWork.openOrCreate(dateStr)
+  local pageName = "Work/" .. dateStr
+  if space.pageExists(pageName) then
+    editor.navigate(pageName)
+    return
+  end
+  local templatePage = "Library/sb-initio/Work"
+  template.createPageFromTemplate(templatePage, pageName, true)
+end
+
+function initioWork.entries()
+  return query[[
+    from j = index.pages("work")
+    order by j.date desc
+  ]]
+end
+
+command.define {
+  name = "Day: Today",
+  run = function()
+    initioDay.openOrCreate(date.today())
+  end
+}
+
+command.define {
+  name = "Day: New Work",
+  run = function()
+    initioWork.openOrCreate(os.date("%Y-%m-%d") .. "_" .. os.date("%H%M"))
+  end
+}
+
+```
 
 ## Tags
 
@@ -38,9 +96,8 @@ tag.define {
 ## Utilites
 
 ```space-lua
-templates.workEntry =
-template.new([==[
-* [[${name}|${time}]]-${duration}${ some(jira) and " [" .. jira .. "](https://ya.ru)" or ""}${ some(case) and " "..case or ""} ${get_first_paragraph(name)}
+templates.workEntry = template.new([==[
+* [[${name}|${time}]]-${duration}${ some(jira) and " [" .. jira .. "](https://git.esterdev.com/jira/browse/" .. jira ..")" or ""}${ some(case) and " "..case or ""} ${get_first_paragraph(name)}
 ]==])
 
 -- Вспомогательная функция для рекурсивного поиска первого абзаца в дереве
