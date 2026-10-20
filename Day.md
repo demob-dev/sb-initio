@@ -8,12 +8,9 @@ frontmatter: |
   tags: day
   date: ${os.date('%Y-%m-%d')}
 ---
-${[=[
-${widgets.commandButton("Create work entry", "Work: New Entry")}
-]=]}
-
-### day works
-${[=[
+### day works ${[=[
+${widgets.commandButton("new work", "Day: New Work")}
+]=]} ${[=[
 ${some(query[[
   from j = index.pages("work")
   where j.date == ((editor.getCurrentPageMeta() or {}).date or "")
@@ -23,6 +20,7 @@ ${some(query[[
 ]=]}
 
 ### day tasks
-- [ ] 
+- [ ]
 
+### day notes
 |^|
