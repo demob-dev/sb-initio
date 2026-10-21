@@ -8,7 +8,7 @@ frontmatter: |
   tags: work
   date: ${os.date('%Y-%m-%d')}
   time: "${os.date('%H:%M')}"
-  duration: 20
+  duration: 15
   case: ""
   jira: ""
 ---
