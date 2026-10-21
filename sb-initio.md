@@ -61,6 +61,19 @@ command.define {
   end
 }
 
+event.listen {  
+  name = "editor:pageCreating",  
+  run = function(e)  
+    if not e.data.name:startsWith("Days/") then return end  
+    local rawTemplate = space.readPage("Library/sb-initio/DayFC")  
+    --local tree = markdown.parseMarkdown(rawTemplate)  
+    --local expandedTree = markdown.expandMarkdown(tree)  
+    --local template = markdown.renderParseTree(expandedTree)
+    local template = string.gsub(rawTemplate, "${DATE}", string.sub(e.data.name,6))
+    return { text = template, perm = "rw" }  
+  end  
+}
+
 ```
 
 ## Tags
