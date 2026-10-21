@@ -12,6 +12,7 @@ This is `sb-initio/sb-initio` library.
 
 initioDay = initioDay or {}
 initioWork = initioWork or {}
+initio = initio or {}
 
 function initioDay.openOrCreate(dateStr)
   local pageName = "Days/" .. dateStr
@@ -57,20 +58,32 @@ command.define {
 command.define {
   name = "Day: New Work",
   run = function()
-    initioWork.openOrCreate(os.date("%Y-%m-%d") .. "_" .. os.date("%H%M"))
+    local thisday = ((editor.getCurrentPageMeta() or {}).date or date.today())
+    initioWork.openOrCreate(thisday .. "_" .. os.date("%H%M"))
   end
 }
 
 event.listen {  
-  name = "editor:pageCreating",  
-  run = function(e)  
-    if not e.data.name:startsWith("Days/") then return end  
-    local rawTemplate = space.readPage("Library/sb-initio/DayFC")  
-    --local tree = markdown.parseMarkdown(rawTemplate)  
-    --local expandedTree = markdown.expandMarkdown(tree)  
-    --local template = markdown.renderParseTree(expandedTree)
-    local template = string.gsub(rawTemplate, "${DATE}", string.sub(e.data.name,6))
-    return { text = template, perm = "rw" }  
+  name = "editor:pageCreating",
+  run = function(e)
+    local day =  string.sub(e.data.name, 6, 15)
+    local hour = string.sub(e.data.name, -4, -3)
+    local mnts = string.sub(e.data.name, -2, -1)
+    local template = ""
+    if e.data.name:startsWith("Days/") then
+        local rawTemplate = space.readPage("Library/sb-initio/Day.template")
+        --local tree = markdown.parseMarkdown(rawTemplate)  
+        --local expandedTree = markdown.expandMarkdown(tree)  
+        --local template = markdown.renderParseTree(expandedTree)
+        template = string.gsub(rawTemplate, "${DATE}", day)
+        return { text = template, perm = "rw" }  
+    elseif e.data.name:startsWith("Work/") then
+        template = space.readPage("Library/sb-initio/Work.template")
+        template = string.gsub(template, "${DATE}", day)
+        template = string.gsub(template, "${HOUR}", hour)
+        template = string.gsub(template, "${MNTS}", mnts)
+        return { text = template, perm = "rw" }  
+    end
   end  
 }
 
@@ -189,5 +202,65 @@ function mergeTables(t1, t2)
 end
 ```
 
+## Widgets
+
+```space-lua
+
+function initio.generateWorkSlotLine(day, from, to)
+  local res = ""
+  for i = from, to do
+    res = res .. string.format("**%02d**", i)
+    for k, j in pairs({"00", "15", "30", "45"}) do
+      res = res .. string.format("[[Work/%s_%02d%s|:%s]]", day, i, j, j)
+    end
+    res = res .. " "
+  end
+  return res
+end
+
+function initio.widgetWorkDailyBlock()
+  local res = {}
+  local day = ((editor.getCurrentPageMeta() or {}).date or "")
+  -- prepare direct access to works
+  table.insert(res, initio.generateWorkSlotLine(day,  8, 11))
+  table.insert(res, initio.generateWorkSlotLine(day, 12, 15))
+  table.insert(res, initio.generateWorkSlotLine(day, 16, 19))
+  table.insert(res, " ")
+  -- prepare work list
+  for w in query[[
+    from w = index.pages("work")
+    where w.date == ((editor.getCurrentPageMeta() or {}).date or "")
+    order by w.time
+    select w
+  ]] do
+    local work = string.format("[[%s|%s]]-%d%s%s %s",
+      w.name, w.time, w.duration,
+      (some(w.jira) and " [" .. w.jira .. "](https://git.esterdev.com/jira/browse/" .. w.jira ..")" or ""),
+      (some(w.case) and " "..w.case or ""),
+      get_first_paragraph(w.name)
+    )
+    table.insert(res, work)
+  end
+  -- prepare status line of jira timing
+  local stat = ""
+  local tota = 0
+  for k in query[[
+  from p = index.pages("work")
+  where p.date == ((editor.getCurrentPageMeta() or {}).date or "")
+  group by p.jira
+  select {
+    jira = p.jira,
+    dura = sum(p.duration),
+  }]] do
+    tota = tota + k.dura
+    stat = stat .. string.format("\n[%10s](https://git.esterdev.com/jira/browse/%s): %s ",k.jira,k.jira, string.format("%02dh %02dm", math.floor(k.dura/60), k.dura % 60))
+  end
+  stat = stat .. string.format("\n     total: %02dh %02dm", math.floor(tota/60), tota % 60)
+  table.insert(res, ""..stat)
+  -- return markdown block
+  return widget.markdownBlock(table.concat(res,"\n"))
+end
+
+```
 
 
