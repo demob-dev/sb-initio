@@ -1,5 +1,7 @@
 # sb-initio
 
+A preview version of some SilverBullet Library.
+NOT to use.
 
 ## Installation
 
