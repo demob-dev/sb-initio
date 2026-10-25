@@ -63,7 +63,7 @@ command.define {
   end
 }
 
-event.listen {  
+event.listen {
   name = "editor:pageCreating",
   run = function(e)
     local day =  string.sub(e.data.name, 6, 15)
@@ -72,19 +72,19 @@ event.listen {
     local template = ""
     if e.data.name:startsWith("Days/") then
         local rawTemplate = space.readPage("Library/sb-initio/Day.template")
-        --local tree = markdown.parseMarkdown(rawTemplate)  
-        --local expandedTree = markdown.expandMarkdown(tree)  
+        --local tree = markdown.parseMarkdown(rawTemplate)
+        --local expandedTree = markdown.expandMarkdown(tree)
         --local template = markdown.renderParseTree(expandedTree)
         template = string.gsub(rawTemplate, "${DATE}", day)
-        return { text = template, perm = "rw" }  
+        return { text = template, perm = "rw" }
     elseif e.data.name:startsWith("Work/") then
         template = space.readPage("Library/sb-initio/Work.template")
         template = string.gsub(template, "${DATE}", day)
         template = string.gsub(template, "${HOUR}", hour)
         template = string.gsub(template, "${MNTS}", mnts)
-        return { text = template, perm = "rw" }  
+        return { text = template, perm = "rw" }
     end
-  end  
+  end
 }
 
 ```
@@ -101,7 +101,7 @@ tag.define {
     properties = {
       date = schema.string(),
       time = schema.string(),
-      duration = schema.number(),
+      term = schema.number(),
       case = schema.nullable("string"),
       jira = schema.nullable("string"),
     },
@@ -123,7 +123,7 @@ tag.define {
 
 ```space-lua
 templates.workEntry = template.new([==[
-* [[${name}|${time}]]-${duration}${ some(jira) and " [" .. jira .. "](https://git.esterdev.com/jira/browse/" .. jira ..")" or ""}${ some(case) and " "..case or ""} ${get_first_paragraph(name)}
+* [[${name}|${time}]]-${term}${ some(jira) and " [" .. jira .. "](https://git.esterdev.com/jira/browse/" .. jira ..")" or ""}${ some(case) and " "..case or ""} ${get_first_paragraph(name)}
 ]==])
 
 -- Вспомогательная функция для рекурсивного поиска первого абзаца в дереве
@@ -234,7 +234,7 @@ function initio.widgetWorkDailyBlock()
     select w
   ]] do
     local work = string.format("[[%s|%s]]-%d%s%s %s",
-      w.name, w.time, w.duration,
+      w.name, w.time, w.term,
       (some(w.jira) and " [" .. w.jira .. "](https://git.esterdev.com/jira/browse/" .. w.jira ..")" or ""),
       (some(w.case) and " "..w.case or ""),
       get_first_paragraph(w.name)
@@ -250,7 +250,7 @@ function initio.widgetWorkDailyBlock()
   group by p.jira
   select {
     jira = p.jira,
-    dura = sum(p.duration),
+    dura = sum(p.term),
   }]] do
     tota = tota + k.dura
     stat = stat .. string.format("\n[%10s](https://git.esterdev.com/jira/browse/%s): %s ",k.jira,k.jira, string.format("%02dh %02dm", math.floor(k.dura/60), k.dura % 60))
