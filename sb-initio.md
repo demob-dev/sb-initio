@@ -63,6 +63,14 @@ command.define {
   end
 }
 
+command.define {
+  name = "Initio: Add code fences",
+  key = "Ctrl-a",
+  run = function()
+    editor.insertAtCursor("```\n|^|\n```\n", false, true)
+  end
+}
+
 event.listen {
   name = "editor:pageCreating",
   run = function(e)
@@ -114,6 +122,27 @@ tag.define {
     type = "object",
     properties = {
       date = schema.string(),
+    },
+  },
+}
+--
+tag.define {
+  name = "pack",
+  schema = {
+    type = "object",
+    properties = {
+      pack = schema.nullable("string"),
+    },
+  },
+}
+--
+tag.define {
+  name = "task",
+  schema = {
+    type = "object",
+    properties = {
+      pack = schema.nullable("string"),
+      done = schema.number(),
     },
   },
 }
