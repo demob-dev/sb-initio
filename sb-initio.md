@@ -48,29 +48,6 @@ function initioWork.entries()
   ]]
 end
 
-command.define {
-  name = "Day: Today",
-  run = function()
-    initioDay.openOrCreate(date.today())
-  end
-}
-
-command.define {
-  name = "Day: New Work",
-  run = function()
-    local thisday = ((editor.getCurrentPageMeta() or {}).date or date.today())
-    initioWork.openOrCreate(thisday .. "_" .. os.date("%H%M"))
-  end
-}
-
-command.define {
-  name = "Initio: Add code fences",
-  key = "Ctrl-a",
-  run = function()
-    editor.insertAtCursor("```\n|^|\n```\n", false, true)
-  end
-}
-
 event.listen {
   name = "editor:pageCreating",
   run = function(e)
@@ -137,7 +114,7 @@ tag.define {
 }
 --
 tag.define {
-  name = "task",
+  name = "case",
   schema = {
     type = "object",
     properties = {
@@ -145,6 +122,33 @@ tag.define {
       done = schema.number(),
     },
   },
+}
+```
+
+## Commands
+
+```space-lua
+command.define {
+  name = "Initio: Today",
+  run = function()
+    initioDay.openOrCreate(date.today())
+  end
+}
+
+command.define {
+  name = "Initio: New work",
+  run = function()
+    local thisday = ((editor.getCurrentPageMeta() or {}).date or date.today())
+    initioWork.openOrCreate(thisday .. "_" .. os.date("%H%M"))
+  end
+}
+
+command.define {
+  name = "Initio: Add code fences",
+  key = "Ctrl-a",
+  run = function()
+    editor.insertAtCursor("```\n|^|\n```\n", false, true)
+  end
 }
 ```
 
@@ -247,7 +251,7 @@ function initio.generateWorkSlotLine(day, from, to)
   return res
 end
 
-function initio.widgetWorkDailyBlock()
+function initio.widgetDayInfo()
   local res = {}
   local day = ((editor.getCurrentPageMeta() or {}).date or "")
   -- prepare direct access to works
@@ -290,6 +294,21 @@ function initio.widgetWorkDailyBlock()
   return widget.markdownBlock(table.concat(res,"\n"))
 end
 
+function initio.widgetPackInfo()
+  local res = {}
+  local thisname = editor.getCurrentPage() or ""
+  table.insert(res, "Current pack name: "..thisname)
+  -- prepare pack list
+  for w in query[[
+    from w = index.pages("pack")
+    where w.pack == "[["..thisname.."]]"
+    order by w.name
+    select w
+  ]] do
+    local packstr = string.format("[[%s]] %s", w.name, get_first_paragraph(w.name))
+    table.insert(res, packstr)
+  end
+  -- return result
+  return widget.markdownBlock(table.concat(res,"\n"))
+end
 ```
-
-

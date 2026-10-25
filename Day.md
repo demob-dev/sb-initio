@@ -8,8 +8,8 @@ frontmatter: |
   tags: day
   date: ${os.date('%Y-%m-%d')}
 ---
-### day works ${[=[ ${widgets.commandButton("new work", "Day: New Work")} ]=]} 
-${[=[ ${initio.widgetWorkDailyBlock()} ]=]}
+### day works ${[=[ ${widgets.commandButton("new work", "Day: New Work")} ]=]}
+${[=[ ${initio.widgetDayInfo()} ]=]}
 
 ### day tasks
 - [ ]
