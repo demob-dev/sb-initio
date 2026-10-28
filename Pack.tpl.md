@@ -6,7 +6,7 @@ confirmName: false
 openIfExists: true
 frontmatter: |
   tags: pack
-  pack: "${initio.getCurrentPackLink()}"
+  pack: "${initio.getCurrentPageLink("pack")}"
 ---
 pack description
 

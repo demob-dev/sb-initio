@@ -234,9 +234,9 @@ function mergeTables(t1, t2)
     return result
 end
 
---- Получить ссылку на текущую страницу если она имеет атрибут pack
-function initio.getCurrentPackLink()
-  if (editor.getCurrentPageMeta() or {}).pack then
+--- Получить ссылку на текущую страницу если она имеет тег needTag
+function initio.getCurrentPageLink(needTag)
+  if table.includes((editor.getCurrentPageMeta() or {}).tags, needTag) then
     local name = editor.getCurrentPage() or ""
     return name>"" and "[["..name.."]]" or ""
   else
@@ -308,8 +308,9 @@ function initio.widgetPackInfo()
   local res = {}
   local thisname = editor.getCurrentPage() or ""
   if thisname == "index" then thisname = "" end
-  table.insert(res, "Current pack name: "..thisname)
+  --table.insert(res, "Current pack name: "..thisname)
   -- prepare pack list
+  table.insert(res, "#### subpacks")
   for w in query[[
     from w = index.pages("pack")
     where w.pack == (thisname == "" and "" or "[["..thisname.."]]")
@@ -318,6 +319,44 @@ function initio.widgetPackInfo()
   ]] do
     local packstr = string.format("[[%s]] %s", w.name, get_first_paragraph(w.name))
     table.insert(res, packstr)
+  end
+  -- prepare case list
+  table.insert(res, "#### cases")
+  for w in query[[
+    from w = index.pages("case")
+    where w.pack == (thisname == "" and "" or "[["..thisname.."]]")
+    order by w.name
+    select w
+  ]] do
+    local str = string.format("[[%s]] %s", w.name, get_first_paragraph(w.name))
+    table.insert(res, str)
+  end
+  -- return result
+  return widget.markdownBlock(table.concat(res,"\n"))
+end
+
+function initio.widgetCaseInfo()
+  local res = {}
+  local thisname = editor.getCurrentPage() or ""
+  local thismeta = editor.getCurrentPageMeta() or ""
+  --if thisname == "index" then thisname = "" end
+  --table.insert(res, "Current pack name: "..thisname)
+  table.insert(res, "Completed "..thismeta.done.."%")
+  --table.insert(res, table.includes(thismeta.tags, "case") and "CASE" or "nope")
+  -- prepare work list
+  table.insert(res, "#### works")
+  for w in query[[
+    from w = index.pages("work")
+    where w.case == "[["..thisname.."]]"
+    order by w.date, w.time
+    select w
+  ]] do
+    local work = string.format("[[%s|%s]]-%d%s %s",
+      w.name, w.date.." "..w.time, w.term,
+      (some(w.jira) and " [" .. w.jira .. "](https://git.esterdev.com/jira/browse/" .. w.jira ..")" or ""),
+      get_first_paragraph(w.name)
+    )
+    table.insert(res, work)
   end
   -- return result
   return widget.markdownBlock(table.concat(res,"\n"))
