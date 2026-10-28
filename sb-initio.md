@@ -233,6 +233,16 @@ function mergeTables(t1, t2)
 
     return result
 end
+
+--- Получить ссылку на текущую страницу если она имеет атрибут pack
+function initio.getCurrentPackLink()
+  if (editor.getCurrentPageMeta() or {}).pack then
+    local name = editor.getCurrentPage() or ""
+    return name>"" and "[["..name.."]]" or ""
+  else
+    return ""
+  end
+end
 ```
 
 ## Widgets
@@ -297,11 +307,12 @@ end
 function initio.widgetPackInfo()
   local res = {}
   local thisname = editor.getCurrentPage() or ""
+  if thisname == "index" then thisname = "" end
   table.insert(res, "Current pack name: "..thisname)
   -- prepare pack list
   for w in query[[
     from w = index.pages("pack")
-    where w.pack == "[["..thisname.."]]"
+    where w.pack == (thisname == "" and "" or "[["..thisname.."]]")
     order by w.name
     select w
   ]] do

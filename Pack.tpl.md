@@ -6,7 +6,7 @@ confirmName: false
 openIfExists: true
 frontmatter: |
   tags: pack
-  pack: "[[${editor.getCurrentPage() or ''}]]"
+  pack: "${initio.getCurrentPackLink()}"
 ---
 pack description
 
