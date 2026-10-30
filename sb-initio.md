@@ -1,6 +1,13 @@
 ---
 name: Library/demob.dev/sb-initio
 tags: meta/library
+files:
+- Case.tpl.md
+- Day.md
+- Day.template.md
+- Pack.tpl.md
+- Work.md
+- Work.template.md
 share.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
 share.hash: 607e956e
 share.mode: push
