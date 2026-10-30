@@ -388,3 +388,10 @@ function initio.widgetCaseInfo()
   return widget.markdownBlock(table.concat(res,"\n"))
 end
 ```
+
+#### Styles
+```space-style
+#sb-main .cm-editor { font-size: 16px; }
+html { --editor-width: 900px; font-size: 16px; }
+.cm-line.sb-line-fenced-code * { font-size: 14px !important; }
+```
