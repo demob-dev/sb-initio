@@ -278,7 +278,7 @@ function initio.widgetDayInfo()
   ]] do
     local work = string.format("[[%s|%s]]-%d%s%s %s",
       w.name, w.time, w.term,
-      (some(w.jira) and " [" .. w.jira .. "](https://git.esterdev.com/jira/browse/" .. w.jira ..")" or ""),
+      (some(w.jira) and " "..w.jira or ""),
       (some(w.case) and " "..w.case or ""),
       get_first_paragraph(w.name)
     )
@@ -302,6 +302,22 @@ function initio.widgetDayInfo()
   table.insert(res, ""..stat)
   -- return markdown block
   return widget.markdownBlock(table.concat(res,"\n"))
+end
+
+--- Вывести ссылки на высокоуровневые паки одной строкой
+function initio.widgetPackHighLine()
+  local res = {}
+  -- prepare pack list
+  for w in query[[
+    from w = index.pages("pack")
+    where w.pack == ""
+    order by w.name
+    select w
+  ]] do
+    table.insert(res, string.format("[[%s]]", w.name))
+  end
+  -- return result
+  return widget.markdown(table.concat(res,", "))
 end
 
 function initio.widgetPackInfo()
