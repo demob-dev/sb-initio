@@ -259,6 +259,25 @@ end
 
 ```space-lua
 
+--- Show two markdown blocks in two column
+--- @param left markdown content for left column
+--- @param right markdown content for right column
+function initio.widgetTwoCols(left, right)
+  return widget.htmlBlock(dom.div {
+    style = "display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;",
+    dom.div {
+      style = "min-width: 0;",
+      --markdown.renderToDom(left)
+      left
+    },
+    dom.div {
+      style = "min-width: 0;",
+      --markdown.renderToDom(right)
+      right
+    }
+  })
+end
+
 function initio.generateWorkSlotLine(day, from, to)
   local res = ""
   for i = from, to do
@@ -309,7 +328,9 @@ function initio.widgetDayInfo()
     stat = stat .. string.format("\n[%10s](https://git.esterdev.com/jira/browse/%s): %s ",k.jira,k.jira, string.format("%02dh %02dm", math.floor(k.dura/60), k.dura % 60))
   end
   stat = stat .. string.format("\n     total: %02dh %02dm", math.floor(tota/60), tota % 60)
+  --table.insert(res, "${initio.widgetTwoCols([[ astra ]],[[ "..stat.." ]])}")
   table.insert(res, ""..stat)
+  table.insert(res, "amore mio!")
   -- return markdown block
   return widget.markdownBlock(table.concat(res,"\n"))
 end
