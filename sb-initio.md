@@ -8,9 +8,9 @@ files:
 - Pack_tpl.md
 - Work.md
 - Work_template.md
-share.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
-share.hash: 607e956e
-share.mode: push
+ashare.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
+ashare.hash: 607e956e
+ashare.mode: push
 ---
 
 This is `demob-dev/sb-initio` library.
@@ -330,7 +330,6 @@ function initio.widgetDayInfo()
   stat = stat .. string.format("\n     total: %02dh %02dm", math.floor(tota/60), tota % 60)
   --table.insert(res, "${initio.widgetTwoCols([[ astra ]],[[ "..stat.." ]])}")
   table.insert(res, ""..stat)
-  table.insert(res, "amore mio!")
   -- return markdown block
   return widget.markdownBlock(table.concat(res,"\n"))
 end
