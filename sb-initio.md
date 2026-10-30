@@ -2,12 +2,12 @@
 name: Library/demob.dev/sb-initio
 tags: meta/library
 files:
-- Case.tpl.md
+- Case_tpl.md
 - Day.md
-- Day.template.md
-- Pack.tpl.md
+- Day_template.md
+- Pack_tpl.md
 - Work.md
-- Work.template.md
+- Work_template.md
 share.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
 share.hash: 607e956e
 share.mode: push
@@ -66,14 +66,14 @@ event.listen {
     local mnts = string.sub(e.data.name, -2, -1)
     local template = ""
     if e.data.name:startsWith("Days/") then
-        local rawTemplate = space.readPage("Library/sb-initio/Day.template")
+        local rawTemplate = space.readPage("Library/sb-initio/Day_template")
         --local tree = markdown.parseMarkdown(rawTemplate)
         --local expandedTree = markdown.expandMarkdown(tree)
         --local template = markdown.renderParseTree(expandedTree)
         template = string.gsub(rawTemplate, "${DATE}", day)
         return { text = template, perm = "rw" }
     elseif e.data.name:startsWith("Work/") then
-        template = space.readPage("Library/sb-initio/Work.template")
+        template = space.readPage("Library/sb-initio/Work_template")
         template = string.gsub(template, "${DATE}", day)
         template = string.gsub(template, "${HOUR}", hour)
         template = string.gsub(template, "${MNTS}", mnts)
