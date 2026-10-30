@@ -1,9 +1,12 @@
 ---
-name: Library/sb-initio/sb-initio
+name: Library/demob.dev/sb-initio
 tags: meta/library
+share.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
+share.hash: 607e956e
+share.mode: push
 ---
 
-This is `sb-initio/sb-initio` library.
+This is `demob-dev/sb-initio` library.
 
 ## Core
 
