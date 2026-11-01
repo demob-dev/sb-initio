@@ -34,7 +34,7 @@ function initioDay.openOrCreate(dateStr)
     editor.navigate(pageName)
     return
   end
-  local templatePage = "Library/sb-initio/Day"
+  local templatePage = "Library/demob-dev/Day"
   template.createPageFromTemplate(templatePage, pageName, true)
 end
 
@@ -51,7 +51,7 @@ function initioWork.openOrCreate(dateStr)
     editor.navigate(pageName)
     return
   end
-  local templatePage = "Library/sb-initio/Work"
+  local templatePage = "Library/demob-dev/Work"
   template.createPageFromTemplate(templatePage, pageName, true)
 end
 
@@ -78,14 +78,14 @@ event.listen {
     local mnts = string.sub(e.data.name, -2, -1)
     local template = ""
     if e.data.name:startsWith("Days/") then
-        local rawTemplate = space.readPage("Library/sb-initio/Day_template")
+        local rawTemplate = space.readPage("Library/demob-dev/Day_template")
         --local tree = markdown.parseMarkdown(rawTemplate)
         --local expandedTree = markdown.expandMarkdown(tree)
         --local template = markdown.renderParseTree(expandedTree)
         template = string.gsub(rawTemplate, "${DATE}", day)
         return { text = template, perm = "rw" }
     elseif e.data.name:startsWith("Work/") then
-        template = space.readPage("Library/sb-initio/Work_template")
+        template = space.readPage("Library/demob-dev/Work_template")
         template = string.gsub(template, "${DATE}", day)
         template = string.gsub(template, "${HOUR}", hour)
         template = string.gsub(template, "${MNTS}", mnts)
