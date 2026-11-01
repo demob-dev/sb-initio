@@ -1,5 +1,5 @@
 ---
-name: Library/demob.dev/sb-initio
+name: Library/demob-dev/sb-initio
 tags: meta/library
 files:
 - Case_tpl.md
