@@ -8,6 +8,10 @@ files:
 - Pack_tpl.md
 - Work.md
 - Work_template.md
+- attr-prio.md
+- attr-date.md
+- deed-as-simple-task.md
+- tick-as-task-with-date.md
 ashare.uri: "https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md"
 ashare.hash: 607e956e
 ashare.mode: push
@@ -56,6 +60,14 @@ function initioWork.entries()
     from j = index.pages("work")
     order by j.date desc
   ]]
+end
+
+--- Get date relative to today
+--- @param offset number of days to offset, negative to past, positive to future
+--- @return day as YYYY-MM-DD
+function date.fromToday(offset)
+  local DAY_SECONDS = 60 * 60 * 24
+  return os.date(date.date_format, os.time() + DAY_SECONDS * (offset or 0))
 end
 
 event.listen {
@@ -167,6 +179,10 @@ command.define {
 ```space-lua
 templates.workEntry = template.new([==[
 * [[${name}|${time}]]-${term}${ some(jira) and " [" .. jira .. "](https://git.esterdev.com/jira/browse/" .. jira ..")" or ""}${ some(case) and " "..case or ""} ${get_first_paragraph(name)}
+]==])
+
+templates.entryDeed = template.new([==[
+* [${state}] [[${string.find(ref, "[@#]") and ref or "$" .. ref}|${name}]]
 ]==])
 
 -- Вспомогательная функция для рекурсивного поиска первого абзаца в дереве
@@ -291,17 +307,20 @@ function initio.generateWorkSlotLine(day, from, to)
 end
 
 function initio.widgetDayInfo()
-  local res = {}
-  local day = ((editor.getCurrentPageMeta() or {}).date or "")
+  local pageDay = ((editor.getCurrentPageMeta() or {}).date or "")
+  local pageName = editor.getCurrentPage() or ""
+  local workList= {}
+  local statList = {}
+  local taskList = {}
   -- prepare direct access to works
-  table.insert(res, initio.generateWorkSlotLine(day,  8, 11))
-  table.insert(res, initio.generateWorkSlotLine(day, 12, 15))
-  table.insert(res, initio.generateWorkSlotLine(day, 16, 19))
-  table.insert(res, " ")
+  table.insert(workList, initio.generateWorkSlotLine(pageDay,  8, 11))
+  table.insert(workList, initio.generateWorkSlotLine(pageDay, 12, 15))
+  table.insert(workList, initio.generateWorkSlotLine(pageDay, 16, 19))
+  table.insert(workList, " ")
   -- prepare work list
   for w in query[[
     from w = index.pages("work")
-    where w.date == ((editor.getCurrentPageMeta() or {}).date or "")
+    where w.date == pageDay
     order by w.time
     select w
   ]] do
@@ -311,7 +330,7 @@ function initio.widgetDayInfo()
       (some(w.case) and " "..w.case or ""),
       get_first_paragraph(w.name)
     )
-    table.insert(res, work)
+    table.insert(workList, work)
   end
   -- prepare status line of jira timing
   local stat = ""
@@ -325,13 +344,46 @@ function initio.widgetDayInfo()
     dura = sum(p.term),
   }]] do
     tota = tota + k.dura
-    stat = stat .. string.format("\n[%10s](https://git.esterdev.com/jira/browse/%s): %s ",k.jira,k.jira, string.format("%02dh %02dm", math.floor(k.dura/60), k.dura % 60))
+    stat = stat .. string.format("\n[%8s](https://git.esterdev.com/jira/browse/%s) %s ",k.jira,k.jira, string.format("%02dh %02dm", math.floor(k.dura/60), k.dura % 60))
   end
-  stat = stat .. string.format("\n     total: %02dh %02dm", math.floor(tota/60), tota % 60)
-  --table.insert(res, "${initio.widgetTwoCols([[ astra ]],[[ "..stat.." ]])}")
-  table.insert(res, ""..stat)
-  -- return markdown block
-  return widget.markdownBlock(table.concat(res,"\n"))
+  stat = stat .. string.format("\n   total %02dh %02dm", math.floor(tota/60), tota % 60)
+  table.insert(statList, ""..stat)
+  -- prepare task list
+  -- * all tasks to complete this day
+  -- * all tasks from this day
+  -- * uncompleted prio tasks if this day is today
+  -- * uncompleted overdue tasks if this day is today
+  for t in query[[
+    from t = index.tasks()
+    where t.date == pageDay or t.page == pageName
+       or ( pageDay == date.today() and (t.prio or 0) > 0 and not t.done)
+       or ( pageDay == date.today() and (t.date and (t.date < pageDay and not t.done)))
+    order by t.prio desc nulls last, t.lastPageModified desc
+    select t
+  ]] do
+    table.insert(taskList, string.format(
+      "* [%s] [[%s|%s]]",
+      t.state, (string.find(t.ref, "[@#]") and t.ref or "$" .. t.ref), t.name
+    ))
+  end
+  -- return
+  return widget.htmlBlock(dom.div {
+    dom.div { -- work list with daytime report
+      style = "display: grid; grid-template-columns: 1fr 10rem; gap: 1rem;",
+      dom.div {
+        --style = "border:1px solid #333;",
+        table.concat(workList, "\n")
+      },
+      dom.div {
+        --style = "border:1px solid #333;",
+        ".\n."..table.concat(statList, "\n")
+      },
+    },
+    dom.div { -- task list
+      style = "margin-top:1rem;",
+      table.concat(taskList, "\n")
+    },
+  })
 end
 
 --- Вывести ссылки на высокоуровневые паки одной строкой
@@ -348,6 +400,17 @@ function initio.widgetPackHighLine()
   end
   -- return result
   return widget.markdown(table.concat(res,", "))
+end
+
+--- Show line of links to days around today
+function initio.widgetDaysLine()
+  return widget.markdown(
+    string.format("[[%s|%s]], ", "Days/"..date.fromToday(-2), date.fromToday(-2))
+    ..string.format("[[%s|%s]], ", "Days/"..date.fromToday(-1), date.fromToday(-1))
+    ..string.format("**[[%s|%s]]**, ", "Days/"..date.fromToday(0), date.fromToday(0))
+    ..string.format("[[%s|%s]], ", "Days/"..date.fromToday(1), date.fromToday(1))
+    ..string.format("[[%s|%s]]", "Days/"..date.fromToday(2), date.fromToday(2))
+  )
 end
 
 function initio.widgetPackInfo()
@@ -412,6 +475,6 @@ end
 #### Styles
 ```space-style
 #sb-main .cm-editor { font-size: 16px; }
-html { --editor-width: 900px; font-size: 16px; }
+html { --editor-width: 860px; font-size: 16px; }
 .cm-line.sb-line-fenced-code * { font-size: 14px !important; }
 ```

@@ -4,6 +4,7 @@ command: "Work: New Entry"
 tags: meta/template/page
 suggestedName: "Work/${os.date('%Y-%m-%d')}_${os.date('%H%M')}"
 confirmName: false
+openIfExists: true
 frontmatter: |
   tags: work
   date: ${os.date('%Y-%m-%d')}
