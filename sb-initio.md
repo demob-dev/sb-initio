@@ -358,7 +358,7 @@ function initio.widgetDayInfo()
     where t.date == pageDay or t.page == pageName
        or ( pageDay == date.today() and (t.prio or 0) > 0 and not t.done)
        or ( pageDay == date.today() and (t.date and (t.date < pageDay and not t.done)))
-    order by t.prio desc nulls last, t.lastPageModified desc
+    order by t.prio desc nulls last, t.name asc
     select t
   ]] do
     table.insert(taskList, string.format(
