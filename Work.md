@@ -1,6 +1,6 @@
 ---
 name: work
-command: "Work: New Entry"
+command: "Initio: New Work"
 tags: meta/template/page
 suggestedName: "Work/${os.date('%Y-%m-%d')}_${os.date('%H%M')}"
 confirmName: false
@@ -10,7 +10,7 @@ frontmatter: |
   date: ${os.date('%Y-%m-%d')}
   time: "${os.date('%H:%M')}"
   term: 15
-  case: ""
+  case: "${initio.getCurrentPageLink("case")}"
   jira: ""
 ---
 |^|

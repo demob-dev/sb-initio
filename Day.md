@@ -1,6 +1,6 @@
 ---
 name: day
-command: "Day: New Entry"
+command: "Initio: New Day"
 tags: meta/template/page
 suggestedName: "Days/${os.date('%Y-%m-%d')}"
 confirmName: false

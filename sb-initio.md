@@ -158,14 +158,6 @@ command.define {
 }
 
 command.define {
-  name = "Initio: New work",
-  run = function()
-    local thisday = ((editor.getCurrentPageMeta() or {}).date or date.today())
-    initioWork.openOrCreate(thisday .. "_" .. os.date("%H%M"))
-  end
-}
-
-command.define {
   name = "Initio: Add code fences",
   key = "Ctrl-a",
   run = function()
