@@ -9,3 +9,4 @@ NOT to use.
 2. Install Floating Journal Calendar and tune its settings:
   * Journal Path Pattern: `Days/#year#-#month#-#day#`
   * Weekly note path pattern: `Days/#weekyear#-W#weeknum#`
+3. Install sb-initio https://github.com/demob-dev/sb-initio/blob/main/sb-initio.md
