@@ -177,6 +177,10 @@ templates.entryDeed = template.new([==[
 * [${state}] [[${string.find(ref, "[@#]") and ref or "$" .. ref}|${name}]]
 ]==])
 
+templates.entryPageWithDesc = template.new([==[
+* [[${name}]] ${get_first_paragraph(name)}
+]==])
+
 -- Вспомогательная функция для рекурсивного поиска первого абзаца в дереве
 local function find_first_paragraph(tree)
     if tree.type == "Paragraph" then
